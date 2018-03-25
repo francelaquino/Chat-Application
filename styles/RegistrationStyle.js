@@ -57,6 +57,10 @@ module.exports = StyleSheet.create({
         color:'#c5c6c7',
         marginBottom: 10,
         fontSize:15,
+  },
+  error:{
+      borderColor:'red'
+
   }
   
 

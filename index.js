@@ -5,6 +5,7 @@ import Forgotpassword from './pages/Forgotpassword'
 import { StackNavigator } from 'react-navigation';
 
 const navigation = StackNavigator({
+    
     Login: { 
         screen: Login,
         headerMode: 'none',
