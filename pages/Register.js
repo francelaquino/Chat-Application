@@ -4,17 +4,9 @@ import { Label,Root,Toast,Left,Body,Right,Container, Header,Icon, Content,Title,
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import firebase from 'firebase';
+import firebase from '../config/firebase';
 var registrationStyle = require('../styles/RegistrationStyle');
 
-var config = {
-  apiKey: "AIzaSyANtYYDG_SG-oITfRitkRx3kfoyV7_6X0c",
-  authDomain: "chat-app-7043e.firebaseapp.com",
-  databaseURL: "https://chat-app-7043e.firebaseio.com",
-  projectId: "chat-app-7043e",
-  storageBucket: "chat-app-7043e.appspot.com",
-  messagingSenderId: "505776270058"
-};
 
 
 
@@ -26,15 +18,12 @@ export default class Register extends Component {
         password:'',
         retypepassword:'',
         emailError:false,
-        passwordError:'',
-        retypepasswordError:''
+        passwordError:false,
+        retypepasswordError:false
         
     };
   }
 
-  componentWillMount() {
-    firebase.initializeApp(config);
-  }
   submitRegistration(){
     var isReady=true;
     
