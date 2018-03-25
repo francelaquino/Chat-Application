@@ -1,1 +1,1 @@
-"# chatapp" 
+"# chatapp using reactnative and firebase" 
