@@ -11,12 +11,15 @@ import firebase from '../config/firebase';
 
 var registrationStyle = require('../styles/RegistrationStyle');
 
+const rootRef=firebase.database().ref();
+//const chatRef=rootRef.child('chatMessages');
+
 export default class Forgotpassword extends Component {
     constructor(props) {
         super(props);
         
-        this.chatRef = firebase.database().ref();
-       
+        this.chatRef = firebase.database().ref().child('chatMessages')
+       console.log(firebase.database.ServerValue.TIMESTAMP);
 
 
         const dataSource = new ListView.DataSource({
@@ -32,6 +35,8 @@ export default class Forgotpassword extends Component {
           this.state = {
             dataSource: dataSource
           };
+
+           this.listenForChats(this.chatRef);
     
           /*this.state = {
             message: '',
@@ -60,23 +65,56 @@ export default class Forgotpassword extends Component {
       }
 
       componentDidMount() {
-        this.listenForChats(this.chatRef);
+       /*   let chats=[];
+          this.chatRef.once('value').then(snapshot => {
+          
+            snapshot.forEach(child => {
+                chats.push({
+                    author:child.val().author,
+                    datetime:child.val().time,
+                    message:child.val().message,
+                });
+            })
+            this.setState({
+                dataSource: this.state.dataSource.cloneWithRows(chats)
+              });
+          });*/
+
+        
+        //this.listenForChats(this.chatRef);
+       /* var chats = [];
+
+          
+        this.chatRef.on('value', (dataSnapshot) => {
+          
+            dataSnapshot.forEach((child) => {
+                chats.push({
+                    author:child.val().author,
+                    datetime:child.val().time,
+                    message:child.val().message,
+                });
+              });
+
+              this.setState({
+                dataSource: this.state.dataSource.cloneWithRows(chats)
+              });
+        });*/
       }
 
       
       listenForChats(chatRef) {
-          var chats = [];
-    
+         
 
-        this.chatRef.on('value', (dataSnapshot) => {
           
+        this.chatRef.on('value', (dataSnapshot) => {
+            var chats = [];
+
             dataSnapshot.forEach((child) => {
-                  chats.push({
-                        author:child.val().chatRoom.author,
-                        datetime:child.val().chatRoom.time,
-                        message:child.val().chatRoom.message,
-                  //_key: child.key
-                  });
+                chats.push({
+                    author:child.val().author,
+                    datetime:child.val().time,
+                    message:child.val().message,
+                });
               });
 
               this.setState({
@@ -89,15 +127,13 @@ export default class Forgotpassword extends Component {
       }
 
 
-   
+          
+
       sendMessage() {
         this.chatRef.push({ 
-            chatRoom : {
-                id : "id" ,
-                message : "message",
+                message : this.state.message,
                 time : "time",
                 author : "author",
-            }
         });
     }
   renderChats(chats) {
@@ -125,8 +161,7 @@ export default class Forgotpassword extends Component {
             </Header>
 
             <View style={{flex: 1}}>
-
-                <ListView
+            <ListView
                     enableEmptySections={true}
                     dataSource={this.state.dataSource}
                     renderRow={this.renderChats.bind(this)}
