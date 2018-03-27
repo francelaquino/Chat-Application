@@ -14,6 +14,7 @@ var registrationStyle = require('../styles/RegistrationStyle');
 
 const rootRef=firebase.database().ref();
 const messageRef = firebase.database().ref().child('messages')
+const userRef = firebase.database().ref().child('users')
 export default class Forgotpassword extends Component {
     constructor(props) {
         super(props);
@@ -107,33 +108,31 @@ export default class Forgotpassword extends Component {
             var chats = [];
 
             dataSnapshot.forEach(function(child) {
-                let sender="";
               
 
-                let senderRef=firebase.database().ref("users").child(child.val().sender);
-                senderRef.on("value", (snapshot)=> {
-                    snapshot.forEach((childsnapshot)=> {
-                        console.log(childsnapshot.child());
-                    });
+                let senderRef=userRef.child(child.val().sender);
+                senderRef.once("value").then(function(snapshot) {
 
-                      //sender=snapshot.val().name;
-                     
+                      sender=snapshot.val().name;
+                      chats.push({
+                        message:child.val().message,
+                        timestamp:new Date(parseInt(child.val().timestamp)).toUTCString(),
+                        sender:snapshot.val().name,
+                        recipient:child.val().recipient,
+                    });
                      
                   });
 
-                  chats.push({
-                    message:child.val().message,
-                    timestamp:child.val().timestamp,
-                    sender:sender,
-                    recipient:child.val().recipient,
-                });
+                  
               });
 
               
 
-              this.setState({
-                dataSource: this.state.dataSource.cloneWithRows(chats)
-              });
+             setTimeout(() => {
+                this.setState({
+                    dataSource: this.state.dataSource.cloneWithRows(chats)
+                  });
+             }, 500);
         });
 
                 
