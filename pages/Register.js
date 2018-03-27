@@ -8,15 +8,15 @@ import firebase from '../config/firebase';
 var registrationStyle = require('../styles/RegistrationStyle');
 
 
-
-
 export default class Register extends Component {
   constructor() {
     super();
     this.state = {
+        name:'',
         email: '',
         password:'',
         retypepassword:'',
+        nameError:false,
         emailError:false,
         passwordError:false,
         retypepasswordError:false
@@ -26,7 +26,10 @@ export default class Register extends Component {
 
   submitRegistration(){
     var isReady=true;
-    
+      if(this.state.name==""){
+        this.setState({nameError:true});
+        isReady=false;
+      }
       if(this.state.email==""){
         this.setState({emailError:true});
         isReady=false;
@@ -55,13 +58,25 @@ export default class Register extends Component {
      
 
       if(isReady){
-          firebase.auth().createUserWithEmailAndPassword(this.state.email,this.state.password).then(()=>{
-         
-          this.setState({
-            email:'',
-            password:'',
-            retypepassword:'',
-          });
+          firebase.auth().createUserWithEmailAndPassword(this.state.email,this.state.password).then((response)=>{
+            let userid=response.uid;
+        
+
+           userRef = firebase.database().ref().child("users/"+userid);
+
+            userRef.set({ 
+              email : this.state.email,
+              name : this.state.name,
+              profileimage : ''
+            });
+
+            this.setState({
+              name:'',
+              email:'',
+              password:'',
+              retypepassword:'',
+            });
+   
 
           Toast.show({
             text: "You have been successfully registered",
@@ -102,6 +117,16 @@ export default class Register extends Component {
             </View>
             <View style={registrationStyle.formContainer}>
             
+
+              <Item  rounded style={[registrationStyle.item,(this.state.nameError && this.state.name=='' ) && registrationStyle.error]}>
+                  <MaterialIcons  name='person' style={registrationStyle.icon}/>
+                  <Input style={registrationStyle.input} 
+                    name="name" 
+                    value={this.state.name}
+                    onChangeText={name=>this.setState({name})}
+                    placeholder='Name'/>
+              </Item>
+
 
               <Item  rounded style={[registrationStyle.item,(this.state.emailError && this.state.email=='' ) && registrationStyle.error]}>
                   <MaterialIcons  name='email' style={registrationStyle.icon}/>

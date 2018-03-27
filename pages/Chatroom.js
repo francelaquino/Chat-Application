@@ -5,6 +5,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { YellowBox } from 'react-native';
 
+
 YellowBox.ignoreWarnings(['Setting a timer']);
 
 import firebase from '../config/firebase';
@@ -12,31 +13,26 @@ import firebase from '../config/firebase';
 var registrationStyle = require('../styles/RegistrationStyle');
 
 const rootRef=firebase.database().ref();
-//const chatRef=rootRef.child('chatMessages');
-
+const messageRef = firebase.database().ref().child('messages')
 export default class Forgotpassword extends Component {
     constructor(props) {
         super(props);
+        this.userid="";
         
-        this.chatRef = firebase.database().ref().child('chatMessages')
-       console.log(firebase.database.ServerValue.TIMESTAMP);
-
+        firebase.auth().signInWithEmailAndPassword("aquinof@rchsp.med.sa","111111").then((user)=>{
+            this.userid=user.uid;
+        });
 
         const dataSource = new ListView.DataSource({
             rowHasChanged: (row1, row2) => row1 !== row2,
           });
 
-          var chats = { 
-            author: '',
-            datetime :'',
-            message : '',
-          };
 
           this.state = {
             dataSource: dataSource
           };
 
-           this.listenForChats(this.chatRef);
+           this.listenForChats(messageRef);
     
           /*this.state = {
             message: '',
@@ -101,21 +97,46 @@ export default class Forgotpassword extends Component {
         });*/
       }
 
-      
+      getName(senderId){
+        console.log(senderId);
+        let senderRef=firebase.database().ref("users").child(senderId);
+        senderRef.once("value", (snapshot)=> {
+          
+              sender=snapshot.val().name;
+             
+             return sender;
+          });
+          
+      }
+
       listenForChats(chatRef) {
          
-
+//updated
           
-        this.chatRef.on('value', (dataSnapshot) => {
+        messageRef.on('value', (dataSnapshot) => {
             var chats = [];
 
             dataSnapshot.forEach((child) => {
-                chats.push({
-                    author:child.val().author,
-                    datetime:child.val().time,
+                let sender="";
+              
+
+                let senderRef=firebase.database().ref("users").child(child.val().sender);
+                senderRef.once("value", (snapshot)=> {
+                  
+                      sender=snapshot.val().name;
+                     
+                      
+                  });
+
+                  chats.push({
                     message:child.val().message,
+                    timestamp:child.val().timestamp,
+                    sender:sender,
+                    recipient:child.val().recipient,
                 });
               });
+
+              
 
               this.setState({
                 dataSource: this.state.dataSource.cloneWithRows(chats)
@@ -130,18 +151,19 @@ export default class Forgotpassword extends Component {
           
 
       sendMessage() {
-        this.chatRef.push({ 
+        messageRef.push({ 
                 message : this.state.message,
-                time : "time",
-                author : "author",
+                timestamp : Date.now(),
+                sender : this.userid,
+                recipient : "recipient",
         });
     }
   renderChats(chats) {
     return (
         <View  style={styles.chatContainer}>
         <View style={styles.headerContainer}>
-            <Left><Text style={styles.author}>{chats.author}</Text></Left>
-            <Right><Text style={styles.datetime}>{chats.datetime}</Text></Right>
+            <Left><Text style={styles.author}>{chats.sender}</Text></Left>
+            <Right><Text style={styles.datetime}>{chats.timestamp}</Text></Right>
         </View>
         
         <View rounded style={styles.messageContainer}><Text  style={styles.message}>{chats.message}</Text></View>

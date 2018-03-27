@@ -6,6 +6,7 @@ import Chatroom from './pages/Chatroom'
 import { StackNavigator } from 'react-navigation';
 
 const navigation = StackNavigator({
+   
     Chatroom: { 
         screen: Chatroom,
         headerMode: 'none',
@@ -27,6 +28,7 @@ const navigation = StackNavigator({
             header: null
         } 
     },
+    
     Forgotpassword: { 
         screen: Forgotpassword,
         headerMode: 'none',
