@@ -97,35 +97,28 @@ export default class Forgotpassword extends Component {
         });*/
       }
 
-      getName(senderId){
-        console.log(senderId);
-        let senderRef=firebase.database().ref("users").child(senderId);
-        senderRef.once("value", (snapshot)=> {
-          
-              sender=snapshot.val().name;
-             
-             return sender;
-          });
-          
-      }
+
+
 
       listenForChats(chatRef) {
          
-//updated
-          
-        messageRef.on('value', (dataSnapshot) => {
+        chatRef.on('value', (dataSnapshot) => {
+       // chatRef.once('value').then(function(dataSnapshot) {
             var chats = [];
 
-            dataSnapshot.forEach((child) => {
+            dataSnapshot.forEach(function(child) {
                 let sender="";
               
 
                 let senderRef=firebase.database().ref("users").child(child.val().sender);
-                senderRef.once("value", (snapshot)=> {
-                  
-                      sender=snapshot.val().name;
+                senderRef.on("value", (snapshot)=> {
+                    snapshot.forEach((childsnapshot)=> {
+                        console.log(childsnapshot.child());
+                    });
+
+                      //sender=snapshot.val().name;
                      
-                      
+                     
                   });
 
                   chats.push({
@@ -142,6 +135,9 @@ export default class Forgotpassword extends Component {
                 dataSource: this.state.dataSource.cloneWithRows(chats)
               });
         });
+
+                
+             
        
        
 
