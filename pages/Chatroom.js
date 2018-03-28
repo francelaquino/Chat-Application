@@ -3,131 +3,74 @@ import { ListView, StyleSheet, View,TouchableOpacity,ScrollView,Image,AsyncStora
 import { ListItem,Left,Body,Right,Container, Header,Icon, Content,Title, Item, Input,Button,Text} from 'native-base';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Moment from 'moment';
 import { YellowBox } from 'react-native';
-
+var logindetails = require('../config/variables');
 
 YellowBox.ignoreWarnings(['Setting a timer']);
 
 import firebase from '../config/firebase';
 
 var registrationStyle = require('../styles/RegistrationStyle');
+var logindetails = require('../config/variables');
 
-const rootRef=firebase.database().ref();
-const messageRef = firebase.database().ref().child('messages')
-const userRef = firebase.database().ref().child('users')
+const userRef = firebase.database().ref().child('users');
+const messageRef = firebase.database().ref().child('messages').getRef();
+
 export default class Forgotpassword extends Component {
     constructor(props) {
         super(props);
-        this.userid="";
         
-        firebase.auth().signInWithEmailAndPassword("aquinof@rchsp.med.sa","111111").then((user)=>{
-            this.userid=user.uid;
-        });
+
+        this.userid=logindetails.uid;
+        
+
+        this.recipientUid=this.props.navigation.state.params.recipientUid;
 
         const dataSource = new ListView.DataSource({
             rowHasChanged: (row1, row2) => row1 !== row2,
           });
 
-
           this.state = {
             dataSource: dataSource
           };
-
-           this.listenForChats(messageRef);
-    
-          /*this.state = {
-            message: '',
-            dataSource: dataSource.cloneWithRows([
-              { 
-                  author: 'Francel',
-                  datetime :'Date Time',
-                  message : 'Message',
-
-              },
-              { 
-                author: 'Francel',
-                datetime :'Date Time',
-                message : 'Message',
-
-            },
-            { 
-                author: 'Francel',
-                datetime :'Date Time',
-                message : 'Message',
-
-            }
-            ])
-          };*/
-    
-      }
-
-      componentDidMount() {
-       /*   let chats=[];
-          this.chatRef.once('value').then(snapshot => {
-          
-            snapshot.forEach(child => {
-                chats.push({
-                    author:child.val().author,
-                    datetime:child.val().time,
-                    message:child.val().message,
-                });
-            })
-            this.setState({
-                dataSource: this.state.dataSource.cloneWithRows(chats)
-              });
-          });*/
-
-        
-        //this.listenForChats(this.chatRef);
-       /* var chats = [];
-
-          
-        this.chatRef.on('value', (dataSnapshot) => {
-          
-            dataSnapshot.forEach((child) => {
-                chats.push({
-                    author:child.val().author,
-                    datetime:child.val().time,
-                    message:child.val().message,
-                });
-              });
-
-              this.setState({
-                dataSource: this.state.dataSource.cloneWithRows(chats)
-              });
-        });*/
-      }
-
-
-
-
-      listenForChats(chatRef) {
          
-        chatRef.on('value', (dataSnapshot) => {
-       // chatRef.once('value').then(function(dataSnapshot) {
+          console.log(logindetails.uid);
+    
+      }
+
+    componentDidMount() {
+        this.listenForChats();
+    }
+
+      listenForChats() {
+        let parent=this;
+        messageRef.on('value', (dataSnapshot) => {
             var chats = [];
 
             dataSnapshot.forEach(function(child) {
               
-
+                let timestamp="";
                 let senderRef=userRef.child(child.val().sender);
                 senderRef.once("value").then(function(snapshot) {
+                    if((child.val().sender==parent.recipientUid || child.val().recipient==parent.recipientUid) &&
+                    child.val().sender==parent.userid || child.val().recipient==parent.userid  ){
 
-                      sender=snapshot.val().name;
-                      chats.push({
-                        message:child.val().message,
-                        timestamp:new Date(parseInt(child.val().timestamp)).toUTCString(),
-                        sender:snapshot.val().name,
-                        recipient:child.val().recipient,
-                    });
-                     
+                        sender=snapshot.val().name;
+                        timestamp= Moment(new Date(parseInt(child.val().timestamp))).format("ddd HH:mm A");
+                        chats.push({
+                            message:child.val().message,
+                            timestamp: timestamp,
+                            sender:snapshot.val().name,
+                            recipient:child.val().recipient,
+                        });
+                    }
                   });
 
                   
               });
 
-              
-
+             
              setTimeout(() => {
                 this.setState({
                     dataSource: this.state.dataSource.cloneWithRows(chats)
@@ -150,14 +93,16 @@ export default class Forgotpassword extends Component {
                 message : this.state.message,
                 timestamp : Date.now(),
                 sender : this.userid,
-                recipient : "recipient",
+                recipient : this.recipientUid,
         });
+
+        this.setState({message:''})
     }
   renderChats(chats) {
     return (
         <View  style={styles.chatContainer}>
         <View style={styles.headerContainer}>
-            <Left><Text style={styles.author}>{chats.sender}</Text></Left>
+            <Left ><Text style={styles.author}>{chats.sender}</Text></Left>
             <Right><Text style={styles.datetime}>{chats.timestamp}</Text></Right>
         </View>
         
@@ -172,8 +117,13 @@ export default class Forgotpassword extends Component {
     return (
         <Container  style={styles.container}>
          <Header style={registrationStyle.header}>
-            <Body>
-            <Title>Chat</Title>
+         <Left style={styles.headerLeft} >
+         <Button transparent onPress={()=> {this.props.navigation.goBack()}} >
+            <Icon size={30} name='arrow-back' />
+        </Button> 
+          </Left>
+          <Body >
+            <Title >Chat</Title>
             </Body>
             </Header>
 
@@ -303,6 +253,13 @@ const styles = StyleSheet.create({
     },
     iconSendDisabled:{
         backgroundColor:'silver',
-    }
+    },
+    headerLeft: {
+        paddingLeft: 6,
+        paddingRight: 6,
+        width:40,
+        flex:0,
+    },
+     
   });
   

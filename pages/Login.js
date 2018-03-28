@@ -6,7 +6,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import firebase from '../config/firebase';
 var registrationStyle = require('../styles/RegistrationStyle');
-
+var logindetails = require('../config/variables');
 import { YellowBox } from 'react-native';
 
 YellowBox.ignoreWarnings(['Setting a timer']);
@@ -62,7 +62,9 @@ export default class Register extends Component {
       }
 
     checkLogin(){
-       
+      
+      const { navigate } = this.props.navigation;
+     
         var isReady=true;
     
         if(this.state.email==""){
@@ -81,11 +83,14 @@ export default class Register extends Component {
        
   
         if(isReady){
-            firebase.auth().signInWithEmailAndPassword(this.state.email,this.state.password).then(()=>{
+            firebase.auth().signInWithEmailAndPassword(this.state.email,this.state.password).then((user)=>{
+              logindetails.uid=user.uid;
+              
             this.setState({
               email:'',
               password:'',
             });
+            navigate('Contact');
   
           }).catch(function(e){
             Toast.show({
