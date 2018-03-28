@@ -1,3 +1,5 @@
 module.exports = {
-    uid: '1',
+    uid: '',
+    email :'',
+    name :''
   };

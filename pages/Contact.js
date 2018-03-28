@@ -35,26 +35,26 @@ export default class Register extends Component {
 
     componentDidMount() {
         userRef.on('value', (dataSnapshot) => {
-            var users = [];
-            dataSnapshot.forEach(function(child) {
-                let initial=child.val().name.charAt(0).toUpperCase();
-                if(child.key!=logindetails.uid){
-                users.push({
-                    uid:child.key,
-                    initial:initial,
-                    name:child.val().name,
-                    email:child.val().email,
-                    profileimage:child.val().profileimage,
-                    });
-                }
-              });
-            
+           
+            if(dataSnapshot.exists){
+                var users = [];
+                dataSnapshot.forEach(function(child) {
+                    let initial=child.val().name.charAt(0).toUpperCase();
+                    if(child.key!=logindetails.uid){
+                    users.push({
+                        uid:child.key,
+                        initial:initial,
+                        name:child.val().name,
+                        email:child.val().email,
+                        profileimage:child.val().profileimage,
+                        });
+                    }
+                });
 
               this.setState({
                 users: users
               });
-              
-
+            }
              
              
         });
@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
         borderRadius:15,
         alignItems: 'center',
         justifyContent: 'center',
+        paddingLeft:0,
         paddingRight:10,
        
        
@@ -132,9 +133,8 @@ const styles = StyleSheet.create({
     },
     initial:{
         color:'white',
-      
-      
-        
+        width:30,
+        textAlign: 'center'
 
     },
     name:{

@@ -14,13 +14,6 @@ const navigation = StackNavigator({
             header: null
         } 
     },
-    Contact: { 
-        screen: Contact,
-        headerMode: 'none',
-        navigationOptions: {
-            header: null
-        } 
-    },
     Chatroom: { 
         screen: Chatroom,
         headerMode: 'none',
@@ -28,6 +21,16 @@ const navigation = StackNavigator({
             header: null
         } 
     },
+    Contact: { 
+        screen: Contact,
+        headerMode: 'none',
+        navigationOptions: {
+            header: null
+        } 
+    },
+   
+   
+   
    
     Register: { 
         screen: Register,

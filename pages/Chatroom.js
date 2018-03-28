@@ -5,78 +5,128 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Moment from 'moment';
 import { YellowBox } from 'react-native';
-var logindetails = require('../config/variables');
+var loginDetails = require('../config/variables');
 
 YellowBox.ignoreWarnings(['Setting a timer']);
 
 import firebase from '../config/firebase';
 
 var registrationStyle = require('../styles/RegistrationStyle');
-var logindetails = require('../config/variables');
+var loginDetails = require('../config/variables');
 
 const userRef = firebase.database().ref().child('users');
-const messageRef = firebase.database().ref().child('messages').getRef();
+
 
 export default class Forgotpassword extends Component {
     constructor(props) {
         super(props);
         
 
-        this.userid=logindetails.uid;
+       
         
 
         this.recipientUid=this.props.navigation.state.params.recipientUid;
+        //this.recipientUid="DT3gKCQHBRRkTQbY8HQZwmSZomx1";
 
         const dataSource = new ListView.DataSource({
             rowHasChanged: (row1, row2) => row1 !== row2,
           });
 
           this.state = {
-            dataSource: dataSource
+                message:'',
+                dataSource: dataSource
           };
          
-          console.log(logindetails.uid);
+         
     
       }
 
     componentDidMount() {
         this.listenForChats();
     }
+   /* var likes_words = ref.child("items").once('value');
 
-      listenForChats() {
+    likes_words.then(items => {
+        items.forEach(item => {
+
+           //for each item do this
+           let currentlike = item.val().likes;
+         ref.child("items/"+item.key+"/likes").update((currentlike+1));
+
+        })
+   });
+*/
+
+    listenForChats() {
         let parent=this;
-        messageRef.on('value', (dataSnapshot) => {
+        let messageRef = firebase.database().ref().child('user-messages/'+loginDetails.uid).once("value");
+        messageRef.then(message=>{
             var chats = [];
+            message.forEach(items => {
+                let messageid=items.val().messageid;
+                let messageSource1 = firebase.database().ref('messages/'+messageid).ref();
+                messageSource=messageSource1.orderByChild("recipient").equalTo(parent.recipientUid).once("value");
+                    messageSource.then(child=>{
+                        console.log(child.val());
+                       /* let senderName="Me";
+                        if(loginDetails.uid!=child.val().sender){
+                            let senderRef= firebase.database().ref().child('users/'+child.val().sender).once("value"); 
+                            senderRef.then(sender=>{
+                                senderName=sender.val().name;
+                            })
 
-            dataSnapshot.forEach(function(child) {
-              
-                let timestamp="";
-                let senderRef=userRef.child(child.val().sender);
-                senderRef.once("value").then(function(snapshot) {
-                    if((child.val().sender==parent.recipientUid || child.val().recipient==parent.recipientUid) &&
-                    child.val().sender==parent.userid || child.val().recipient==parent.userid  ){
-
-                        sender=snapshot.val().name;
-                        timestamp= Moment(new Date(parseInt(child.val().timestamp))).format("ddd HH:mm A");
+                        }
+                        
+                        let timestamp= Moment(new Date(parseInt(child.val().timestamp))).format("ddd HH:mm A");
+                        
                         chats.push({
                             message:child.val().message,
                             timestamp: timestamp,
-                            sender:snapshot.val().name,
-                            recipient:child.val().recipient,
-                        });
-                    }
-                  });
+                            sender:senderName,
+                            //recipient:child.val().recipient,
+                        });*/
 
-                  
-              });
+                    })
+                    
+
+             })
+             setTimeout(() => {
+                parent.setState({
+                    dataSource: parent.state.dataSource.cloneWithRows(chats)
+                });
+            }, 500);
+        })
+       
+
+      /*  messageRef.on('value', (dataSnapshot) => {
+           
+            if(dataSnapshot.exists){
+            var chats = [];
+                dataSnapshot.forEach(function(child) {
+                
+                    let timestamp="";
+                    let senderRef=userRef.child(child.val().sender);
+                    senderRef.once("value").then(function(snapshot) {
+                            sender=snapshot.val().name;
+                            timestamp= Moment(new Date(parseInt(child.val().timestamp))).format("ddd HH:mm A");
+                            chats.push({
+                                message:child.val().message,
+                                timestamp: timestamp,
+                                sender:snapshot.val().name,
+                                recipient:child.val().recipient,
+                            });
+                    });
+                    
+                });
 
              
-             setTimeout(() => {
-                this.setState({
-                    dataSource: this.state.dataSource.cloneWithRows(chats)
-                  });
-             }, 500);
-        });
+                setTimeout(() => {
+                    parent.setState({
+                        dataSource: parent.state.dataSource.cloneWithRows(chats)
+                    });
+                }, 500);
+            }
+        });*/
 
                 
              
@@ -85,19 +135,23 @@ export default class Forgotpassword extends Component {
 
       }
 
-
+   
           
 
-      sendMessage() {
-        messageRef.push({ 
-                message : this.state.message,
-                timestamp : Date.now(),
-                sender : this.userid,
-                recipient : this.recipientUid,
-        });
+sendMessage() {
+    let messageRef = firebase.database().ref().child('messages').getRef();
+    let key = messageRef.push({ 
+            message : this.state.message,
+            timestamp : Date.now(),
+            sender : loginDetails.uid,
+            recipient : this.recipientUid,
+        }).key;
+        
+    firebase.database().ref().child("user-messages/"+loginDetails.uid).push({messageid:key});
+    firebase.database().ref().child("user-messages/"+this.recipientUid).push({messageid:key});
 
-        this.setState({message:''})
-    }
+    this.setState({message:''})
+}
   renderChats(chats) {
     return (
         <View  style={styles.chatContainer}>
