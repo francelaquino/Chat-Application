@@ -26,7 +26,7 @@ export default class Forgotpassword extends Component {
         
 
         this.recipientUid=this.props.navigation.state.params.recipientUid;
-        //this.recipientUid="DT3gKCQHBRRkTQbY8HQZwmSZomx1";
+        //this.recipientUid="UvGcBbfPFthoSHlhyNtSf7YOWeP2";
 
         const dataSource = new ListView.DataSource({
             rowHasChanged: (row1, row2) => row1 !== row2,
@@ -56,35 +56,35 @@ export default class Forgotpassword extends Component {
         })
    });
 */
-
     listenForChats() {
         let parent=this;
-        let messageRef = firebase.database().ref().child('user-messages/'+loginDetails.uid).once("value");
-        messageRef.then(message=>{
+        let messageRef=firebase.database().ref("messages");
+        messageRef.on("value",(snapshot)=>{
+        let user_messageRef = firebase.database().ref().child('user-messages/'+loginDetails.uid).on("value",(message)=>{
+        //messageRef.then(message=>{
             var chats = [];
             message.forEach(items => {
                 let messageid=items.val().messageid;
-                let messageSource1 = firebase.database().ref('messages/'+messageid).ref();
-                messageSource=messageSource1.orderByChild("recipient").equalTo(parent.recipientUid).once("value");
-                    messageSource.then(child=>{
-                        console.log(child.val());
-                       /* let senderName="Me";
-                        if(loginDetails.uid!=child.val().sender){
-                            let senderRef= firebase.database().ref().child('users/'+child.val().sender).once("value"); 
-                            senderRef.then(sender=>{
-                                senderName=sender.val().name;
+                console.log(messageid);
+                messageRef.child(messageid).once("value", (child)=>{
+                        let timestamp= Moment(new Date(parseInt(child.val().timestamp))).format("ddd HH:mm A");
+                        let senderName="Me";
+                       
+                            let senderRef= firebase.database().ref().child('users/'+child.val().sender).once("value",(sender)=>{
+                                if(loginDetails.uid!=child.val().sender){
+                                    senderName=sender.val().name;
+                                }
+                                chats.push({
+                                    message:child.val().message,
+                                    timestamp: timestamp,
+                                    sender:senderName,
+                                });
                             })
 
-                        }
                         
-                        let timestamp= Moment(new Date(parseInt(child.val().timestamp))).format("ddd HH:mm A");
                         
-                        chats.push({
-                            message:child.val().message,
-                            timestamp: timestamp,
-                            sender:senderName,
-                            //recipient:child.val().recipient,
-                        });*/
+                        
+                        
 
                     })
                     
@@ -96,6 +96,7 @@ export default class Forgotpassword extends Component {
                 });
             }, 500);
         })
+    })
        
 
       /*  messageRef.on('value', (dataSnapshot) => {

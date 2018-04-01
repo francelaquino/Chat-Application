@@ -61,8 +61,7 @@ export default class Register extends Component {
           firebase.auth().createUserWithEmailAndPassword(this.state.email,this.state.password).then((response)=>{
             let userid=response.uid;
         
-
-           userRef = firebase.database().ref().child("users/"+userid);
+           let userRef = firebase.database().ref().child("users/"+userid);
 
             userRef.set({ 
               email : this.state.email,
