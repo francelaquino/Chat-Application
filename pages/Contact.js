@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
         color:'#00b764',
     },
     note: {
-        fontSize:9,
+        fontSize:12,
     },
     
   });

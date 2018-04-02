@@ -26,11 +26,9 @@ export default class Forgotpassword extends Component {
         
 
         this.recipientUid=this.props.navigation.state.params.recipientUid;
-        //this.recipientUid="UvGcBbfPFthoSHlhyNtSf7YOWeP2";
+        //this.recipientUid="92etcXo5VlXo9recQAZNgk4HIwG3";
 
-        const dataSource = new ListView.DataSource({
-            rowHasChanged: (row1, row2) => row1 !== row2,
-          });
+        const dataSource = new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2});
 
           this.state = {
                 message:'',
@@ -38,29 +36,22 @@ export default class Forgotpassword extends Component {
           };
          
          
+         
     
       }
-
+      componentWillUnmount() {
+        this.mounted = false;
+      }
     componentDidMount() {
+        this.mounted = true;
         this.listenForChats();
     }
-   /* var likes_words = ref.child("items").once('value');
-
-    likes_words.then(items => {
-        items.forEach(item => {
-
-           //for each item do this
-           let currentlike = item.val().likes;
-         ref.child("items/"+item.key+"/likes").update((currentlike+1));
-
-        })
-   });
-*/
+  
     listenForChats() {
         let parent=this;
         let messageRef=firebase.database().ref("messages");
         messageRef.on("value",(snapshot)=>{
-        let user_messageRef = firebase.database().ref().child('user-messages/'+loginDetails.uid).on("value",(message)=>{
+        let user_messageRef = firebase.database().ref().child('user-messages/'+this.recipientUid).on("value",(message)=>{
         //messageRef.then(message=>{
             var chats = [];
             message.forEach(items => {
@@ -98,42 +89,6 @@ export default class Forgotpassword extends Component {
         })
     })
        
-
-      /*  messageRef.on('value', (dataSnapshot) => {
-           
-            if(dataSnapshot.exists){
-            var chats = [];
-                dataSnapshot.forEach(function(child) {
-                
-                    let timestamp="";
-                    let senderRef=userRef.child(child.val().sender);
-                    senderRef.once("value").then(function(snapshot) {
-                            sender=snapshot.val().name;
-                            timestamp= Moment(new Date(parseInt(child.val().timestamp))).format("ddd HH:mm A");
-                            chats.push({
-                                message:child.val().message,
-                                timestamp: timestamp,
-                                sender:snapshot.val().name,
-                                recipient:child.val().recipient,
-                            });
-                    });
-                    
-                });
-
-             
-                setTimeout(() => {
-                    parent.setState({
-                        dataSource: parent.state.dataSource.cloneWithRows(chats)
-                    });
-                }, 500);
-            }
-        });*/
-
-                
-             
-       
-       
-
       }
 
    
@@ -154,7 +109,9 @@ sendMessage() {
     this.setState({message:''})
 }
   renderChats(chats) {
+    if(this.mounted){
     return (
+        
         <View  style={styles.chatContainer}>
         <View style={styles.headerContainer}>
             <Left ><Text style={styles.author}>{chats.sender}</Text></Left>
@@ -165,9 +122,17 @@ sendMessage() {
         </View>
 
         );
+    }else{
+        return (
+            <View></View>
+        );
     }
+}
   
   render() {
+    var Dimensions = require('Dimensions')
+    var {width, height} = Dimensions.get('window');
+
     const { navigate } = this.props.navigation;
     return (
         <Container  style={styles.container}>
@@ -183,20 +148,32 @@ sendMessage() {
             </Header>
 
             <View style={{flex: 1}}>
-            <ListView
+            <ScrollView >
+            <View style={{ height: height - 140}}>
+           
+           
+            <ListView  ref={ref => this.listView = ref}
+                onLayout={event => {
+                this.listViewHeight = event.nativeEvent.layout.height}}
+                onContentSizeChange={() => {
+                this.listView.scrollTo({y: this.listView.getMetrics().contentLength - this.listViewHeight})
+                }}
                     enableEmptySections={true}
                     dataSource={this.state.dataSource}
                     renderRow={this.renderChats.bind(this)}
                 />
+               
                 
+                </View>
+                </ScrollView>
                 <View style={styles.messageArea}>
                 <Input style={styles.messageText} 
                  value={this.state.message}
                  onChangeText={message=>this.setState({message})} />
                 <TouchableOpacity 
                   onPress={()=>this.sendMessage()}
-                    style={[styles.iconSend,(this.state.message=='' ) && styles.iconSendDisabled]} >
-                <FontAwesome style={{color:'white'}}  name='send' />
+                    style={[styles.iconSend,(this.state.message=='') && styles.iconSendDisabled]} >
+                <FontAwesome style={{color:'white',fontSize:15}}  name='send' />
                 </TouchableOpacity>
               </View>
             </View>
@@ -245,13 +222,13 @@ const styles = StyleSheet.create({
         
     },
     author:{
-        fontSize:8,
+        fontSize:11,
         color:'#00b764',
         marginLeft:5,
 
     },
     datetime:{
-        fontSize:8,
+        fontSize:10,
         color:'gray',
         marginRight:5,
     },
@@ -265,7 +242,7 @@ const styles = StyleSheet.create({
     message:{
         width:'100%',
         textAlign: 'left',
-        fontSize:8,
+        fontSize:11,
         color:'#6f7070',
         padding:3,
         
@@ -287,11 +264,11 @@ const styles = StyleSheet.create({
     messageText:{
         alignItems: 'flex-start',
         backgroundColor:'white',
-        fontSize:10,
+        fontSize:12,
         borderRadius:8,
         marginRight:5,
-        height:25,
-        paddingTop:4,
+        height:35,
+        paddingTop:2,
         paddingBottom:0,
         paddingLeft:10,
         color:'#00b764'
@@ -300,11 +277,11 @@ const styles = StyleSheet.create({
     iconSend:{
         alignItems: 'flex-end',
         backgroundColor:'#00b764',
-        borderRadius:10,
-        height:21,
-        width:21,
+        borderRadius:15,
+        height:30,
+        width:30,
         justifyContent: 'center',
-        paddingRight:5,
+        paddingRight:8,
     },
     iconSendDisabled:{
         backgroundColor:'silver',

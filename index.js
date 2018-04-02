@@ -7,8 +7,8 @@ import Contact from './pages/Contact'
 import { StackNavigator } from 'react-navigation';
 
 const navigation = StackNavigator({
-    Login: { 
-        screen: Login,
+    Contact: { 
+        screen: Contact,
         headerMode: 'none',
         navigationOptions: {
             header: null
@@ -21,13 +21,15 @@ const navigation = StackNavigator({
             header: null
         } 
     },
-    Contact: { 
-        screen: Contact,
+    Login: { 
+        screen: Login,
         headerMode: 'none',
         navigationOptions: {
             header: null
         } 
     },
+   
+   
    
    
    
