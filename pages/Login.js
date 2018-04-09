@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {  ListView,StyleSheet, View,TouchableOpacity,ScrollView,Image } from 'react-native';
+import { ToastAndroid, ListView,StyleSheet, View,TouchableOpacity,ScrollView,Image } from 'react-native';
 import { Root,Toast,Left,Body,Right,Container, Header,Icon, Content,Title, Item, Input,Button,Text} from 'native-base';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -42,24 +42,21 @@ export default class Register extends Component {
               _key: child.key
             });
           });
-    
+    if( this.mounted){
           this.setState({
             dataSource: this.state.dataSource.cloneWithRows(items)
           });
+        }
     
         });
       }
 
-      componentDidMount() {
-        /*this.itemsRef.push({ 
-            chatRoom : {
-                id : "id" ,
-                message : "message",
-                time : "time",
-                author : "author",
-            }
-        });*/
+      componentWillUnmount() {
+        this.mounted = false;
       }
+       componentDidMount() {
+        this.mounted = true;
+    }
 
     checkLogin(){
       
@@ -93,13 +90,14 @@ export default class Register extends Component {
             navigate('Contact');
   
           }).catch(function(e){
-            Toast.show({
-              text: e.message,
-              position: 'bottom',
-              buttonText: 'Close',
-              type:'success',
-              duration:4000,
-            })
+            ToastAndroid.showWithGravityAndOffset(
+              e.message,
+              ToastAndroid.LONG,
+              ToastAndroid.BOTTOM,
+              25,
+              50
+            );
+           
           })
        }
     }

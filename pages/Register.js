@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {  StyleSheet, View,TouchableOpacity,ScrollView,Image } from 'react-native';
+import { ToastAndroid, StyleSheet, View,TouchableOpacity,ScrollView,Image } from 'react-native';
 import { Label,Root,Toast,Left,Body,Right,Container, Header,Icon, Content,Title, Item, Input,Button,Text} from 'native-base';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -46,12 +46,14 @@ export default class Register extends Component {
 
       
       if(this.state.password!=this.state.retypepassword){
-        Toast.show({
-          text: "Password mismatch",
-          position: 'bottom',
-          buttonText: 'Close',
-          type:'success'
-        })
+        ToastAndroid.showWithGravityAndOffset(
+          'Password mismatch',
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+          25,
+          50
+        );
+
         isReady=false;
       }
 
@@ -76,22 +78,25 @@ export default class Register extends Component {
               retypepassword:'',
             });
    
+            ToastAndroid.showWithGravityAndOffset(
+              'You have been successfully registered',
+              ToastAndroid.LONG,
+              ToastAndroid.BOTTOM,
+              25,
+              50
+            );
 
-          Toast.show({
-            text: "You have been successfully registered",
-            position: 'bottom',
-            buttonText: 'Close',
-            type:'success',
-            duration:4000,
-          });
+         
         }).catch(function(e){
-          Toast.show({
-            text: e.message,
-            position: 'bottom',
-            buttonText: 'Close',
-            type:'success',
-            duration:4000,
-          })
+          
+          ToastAndroid.showWithGravityAndOffset(
+            e.message,
+            ToastAndroid.LONG,
+            ToastAndroid.BOTTOM,
+            25,
+            50
+          );
+         
         })
      }
   }

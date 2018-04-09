@@ -1,5 +1,5 @@
 module.exports = {
-    uid: 'UvGcBbfPFthoSHlhyNtSf7YOWeP2',
+    uid: '',
     email :'',
     name :''
   };

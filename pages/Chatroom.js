@@ -14,7 +14,7 @@ import firebase from '../config/firebase';
 var registrationStyle = require('../styles/RegistrationStyle');
 var loginDetails = require('../config/variables');
 
-const userRef = firebase.database().ref().child('users');
+//const userRef = firebase.database().ref().child('users');
 
 
 export default class Forgotpassword extends Component {
@@ -35,14 +35,16 @@ export default class Forgotpassword extends Component {
                 dataSource: dataSource
           };
          
-         
+         // this.listenForChats = this.listenForChats.bind(this);
+         // this.sendMessage=this.sendMessage.bind(this);
+         // this.renderChats=this.renderChats.bind(this);
          
     
       }
       componentWillUnmount() {
         this.mounted = false;
       }
-    componentDidMount() {
+       componentDidMount() {
         this.mounted = true;
         this.listenForChats();
     }
@@ -56,7 +58,6 @@ export default class Forgotpassword extends Component {
             var chats = [];
             message.forEach(items => {
                 let messageid=items.val().messageid;
-                console.log(messageid);
                 messageRef.child(messageid).once("value", (child)=>{
                         let timestamp= Moment(new Date(parseInt(child.val().timestamp))).format("ddd HH:mm A");
                         let senderName="Me";
@@ -82,9 +83,11 @@ export default class Forgotpassword extends Component {
 
              })
              setTimeout(() => {
+                if(this.mounted){
                 parent.setState({
                     dataSource: parent.state.dataSource.cloneWithRows(chats)
                 });
+            }
             }, 500);
         })
     })
@@ -95,6 +98,7 @@ export default class Forgotpassword extends Component {
           
 
 sendMessage() {
+    
     let messageRef = firebase.database().ref().child('messages').getRef();
     let key = messageRef.push({ 
             message : this.state.message,
@@ -112,7 +116,7 @@ sendMessage() {
     if(this.mounted){
     return (
         
-        <View  style={styles.chatContainer}>
+        <View ref="myRef" style={styles.chatContainer}>
         <View style={styles.headerContainer}>
             <Left ><Text style={styles.author}>{chats.sender}</Text></Left>
             <Right><Text style={styles.datetime}>{chats.timestamp}</Text></Right>
